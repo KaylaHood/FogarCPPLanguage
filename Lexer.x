@@ -15,7 +15,6 @@ tokens :-
 
     $white+         ;
     $eol            ;
-    "--".*          ;
     @integer        { \s -> IntTok (read s) }
     @real           { \s -> RealTok (read s) }
     \+              { \s -> AddTok }
@@ -28,6 +27,7 @@ tokens :-
     fogarte         { \s -> FogarteTok }
     tau             { \s -> TauTok }
     \~              { \s -> RoundTok }
+    \*              { \s -> MultTok }
     \%              { \s -> ModTok }
     \(              { \s -> LParenTok }
     \)              { \s -> RParenTok }
