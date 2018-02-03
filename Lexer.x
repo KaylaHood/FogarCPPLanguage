@@ -18,7 +18,7 @@ tokens :-
     "--".*          ;
     @integer        { \s -> IntTok (read s) }
     @real           { \s -> RealTok (read s) }
-    \+              { \s -> PlusTok }
+    \+              { \s -> AddTok }
     \-              { \s -> SubTok }
     \/              { \s -> DivTok }
     \/\/            { \s -> IntDivTok }
@@ -34,8 +34,8 @@ tokens :-
     ifz             { \s -> IfzTok }
     then            { \s -> ThenTok }
     else            { \s -> ElseTok }
-    ms              { \s -> MSTok }
-    mr              { \s -> MRTok }
+    MS              { \s -> MSTok }
+    MR              { \s -> MRTok }
     
 {
 -- Each action has type :: String -> Token
