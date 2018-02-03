@@ -1,5 +1,5 @@
 {
-module Lexer (main) where
+module Lexer where
 }
 
 %wrapper "basic"
@@ -36,6 +36,7 @@ tokens :-
     else            { \s -> ElseTok }
     MS              { \s -> MSTok }
     MR              { \s -> MRTok }
+    \?              { \s -> DoneTok }
     
 {
 -- Each action has type :: String -> Token
@@ -62,7 +63,8 @@ data Token =
     ThenTok         |
     ElseTok         |
     MSTok           |
-    MRTok
+    MRTok           |
+    DoneTok
     deriving (Eq,Show)
 
 scanTokens :: String -> Maybe [Token]
@@ -73,7 +75,7 @@ scanTokens str = go ('\n',[],str)
                 AlexError _ -> Nothing
                 AlexSkip  inp' len     -> go inp'
                 AlexToken inp' len act -> fmap ((act (take len str)):) (go inp')
-main = do
-  s <- getContents
-  print (scanTokens s)
+--main = do
+--  s <- getContents
+--  print (scanTokens s)
 }
