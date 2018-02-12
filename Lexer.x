@@ -44,7 +44,7 @@ tokens :-
 -- The token type:
 data Token =
     IntTok Int      |
-    RealTok Double  |
+    RealTok Float   |
     MultTok         |
     AddTok          |
     ExpTok          |
