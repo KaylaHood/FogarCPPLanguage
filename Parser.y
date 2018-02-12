@@ -56,10 +56,12 @@ import Lexer
     mr      { MRTok }
     '?'     { DoneTok }
 
-%left '+' '-'
-%left '^' '*' '/' '//' '%'
+%left '?' 
+%left '+' '-' 
+%left '*' '/' '//' '%' 
+%left '^'
 %right ifz then else ms
-%nonassoc NEG
+%nonassoc NEG ROUND
 %%
 
 E :: { Expr }
@@ -71,17 +73,18 @@ E : '(' E ')'                   { $2 }
   | int                         { NumExpr (IntVal $1) }
   | real                        { NumExpr (RealVal $1) }
   | tau                         { TauExpr }
-  | E ms                        { MSExpr $1 }
+  | E '?'                       { DoneExpr $1 }
   | E '+' E                     { AddExpr $1 $3 }
-  | E '^' E                     { ExpExpr $1 $3 }
+  | E '-' E                     { SubExpr $1 $3 }
   | E '*' E                     { MultExpr $1 $3 }
   | E '/' E                     { DivExpr $1 $3 }
   | E '//' E                    { IntDivExpr $1 $3 }
-  | E '-' E                     { SubExpr $1 $3 }
-  | '-' E %prec NEG             { NegExpr $2 }
-  | '~' E %prec NEG             { RoundExpr $2 }
   | E '%' E                     { ModExpr $1 $3 }
+  | E '^' E                     { ExpExpr $1 $3 }
   | ifz E then E else E         { IfzThenElseExpr $2 $4 $6 }
+  | E ms                        { MSExpr $1 }
+  | '-' E %prec NEG             { NegExpr $2 }
+  | '~' E %prec ROUND           { RoundExpr $2 }
 
 {
 
@@ -103,7 +106,8 @@ data Expr =
   MSExpr Expr                     |
   MRExpr                          |
   NumExpr Value                   |
-  NegExpr Expr
+  NegExpr Expr                    |
+  DoneExpr Expr
   deriving (Show, Eq)
 
 parseError :: [Token] -> Maybe a
