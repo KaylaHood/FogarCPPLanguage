@@ -64,6 +64,12 @@ import Lexer
 %nonassoc NEG ROUND
 %%
 
+P : S '?'                       { $1 }
+
+S :: { Stmt }
+S : E                           { Stmt $1 }
+  | E ms                        { MSStmt $1 }
+
 E :: { Expr }
 E : '(' E ')'                   { $2 }
   | mr                          { MRExpr }
@@ -108,6 +114,15 @@ data Expr =
   NumExpr Value                   |
   NegExpr Expr                    |
   DoneExpr Expr
+  deriving (Show, Eq)
+
+data Stmt = 
+  Stmt Expr     |
+  MSStmt Expr   |
+  deriving (Show, Eq)
+
+data Pgrm =
+  Pgrm Stmt
   deriving (Show, Eq)
 
 parseError :: [Token] -> Maybe a
