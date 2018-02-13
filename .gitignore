@@ -1,4 +1,6 @@
-*.hs
+Alexer.hs
+Lexer.hs
+Parser.hs
 *.o
 *.hi
 Alexer
