@@ -36,7 +36,13 @@ replInner ms = do
             MSStmt e -> do
               evald <- (eval (MSStmt e))
               writeIORef ms (evald)
-              replInner ms
+              case evald of
+                (IntVal i) -> do
+                  putStrLn $ (show i)
+                  replInner ms
+                (RealVal r) -> do
+                  putStrLn $ (show r)
+                  replInner ms
         Nothing -> do
           putStrLn $ "Oops, parse returned Nothing!"
           replInner ms
