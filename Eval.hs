@@ -1,6 +1,7 @@
 module Eval where
 import Parser
 import Data.Fixed
+--import Debug.Trace
 --data Token =
 --    IntTok Int      |
 --    RealTok Float   |
@@ -41,11 +42,15 @@ import Data.Fixed
 --  TauExpr                         |
 --  PiExpr                          |
 --  FogarteExpr                     |
---  MSExpr Expr                     |
 --  MRExpr                          |
 --  NumExpr Value                   |
 --  DoneExpr Expr                   |
 --  NegExpr Expr
+--  deriving (Show, Eq)
+--
+--data Stmt = 
+--  Stmt Expr     |
+--  MSStmt Expr   
 --  deriving (Show, Eq)
 
 negateV :: Value -> Value
@@ -106,8 +111,8 @@ isZero (RealVal x) = if (x == 0.0) then True else False
 factorial :: (Num a, Enum a) => a -> a
 factorial n = product [1..n]
 
-fogarteHelper :: (Fractional a, Eq a, Enum a) => a -> a
-fogarteHelper 0 = 0
+fogarteHelper :: (Fractional a, Show a, Eq a, Enum a) => a -> a
+fogarteHelper 0 = 2
 fogarteHelper n = 
   let
     x = (((2*n) + 2) / (factorial ((2*n) + 1)))
@@ -115,25 +120,68 @@ fogarteHelper n =
   in
     (x + next)
 
-eval :: Expr -> Value
-eval (MultExpr e1 e2) = (multV (eval e1) (eval e2))
-eval (AddExpr e1 e2) = (addV (eval e1) (eval e2))
-eval (ExpExpr e1 e2) =  (powV (eval e1) (eval e2))
-eval (SubExpr e1 e2) = (subV (eval e1) (eval e2))
-eval (DivExpr e1 e2) = (divV (eval e1) (eval e2))
-eval (IntDivExpr e1 e2) = (intDivV (eval e1) (eval e2))
-eval (RoundExpr e) = (roundV (eval e))
-eval (ModExpr e1 e2) = (modV (eval e1) (eval e2))
-eval (IfzThenElseExpr e1 e2 e3) = 
-  let 
-    res = (eval e1)
-  in
-    if (isZero res) then (eval e2) else (eval e3)
-eval TauExpr = (RealVal (realToFrac (2.0*pi)))
-eval PiExpr = (RealVal (realToFrac (pi)))
-eval FogarteExpr = (RealVal (fogarteHelper 6))
-eval (MSExpr e) = (eval e)
-eval MRExpr = (IntVal 0)
-eval (NegExpr e) = (negateV (eval e))
-eval (NumExpr v) = v
-eval (DoneExpr e) = (eval e)
+eval :: Stmt -> IO Value
+eval (Stmt e) = do
+  res1 <- (evalExpr e)
+  return (res1)
+eval (MSStmt e) = do
+  res1 <- (evalExpr e)
+  return (res1)
+
+evalExpr :: Expr -> IO Value
+evalExpr (MultExpr e1 e2) = do
+  res1 <- (evalExpr e1)
+  res2 <- (evalExpr e2)
+  return (multV (res1) (res2)) 
+evalExpr (AddExpr e1 e2) = do
+  res1 <- (evalExpr e1)
+  res2 <- (evalExpr e2)
+  return (addV (res1) (res2))
+evalExpr (ExpExpr e1 e2) = do
+  res1 <- (evalExpr e1)
+  res2 <- (evalExpr e2)
+  return (powV (res1) (res2)) 
+evalExpr (SubExpr e1 e2) = do
+  res1 <- (evalExpr e1)
+  res2 <- (evalExpr e2)
+  return (subV (res1) (res2))
+evalExpr (DivExpr e1 e2) = do
+  res1 <- (evalExpr e1)
+  res2 <- (evalExpr e2)
+  return (divV (res1) (res2))
+evalExpr (IntDivExpr e1 e2) = do
+  res1 <- (evalExpr e1)
+  res2 <- (evalExpr e2)
+  return (intDivV (res1) (res2))
+evalExpr (RoundExpr e) = do
+  res1 <- (evalExpr e)
+  return (roundV (res1))
+evalExpr (ModExpr e1 e2) = do
+  res1 <- (evalExpr e1)
+  res2 <- (evalExpr e2)
+  return (modV (res1) (res2))
+evalExpr (IfzThenElseExpr e1 e2 e3) = do
+  res <- (evalExpr e1)
+  case (isZero res) of
+    True -> do
+      res2 <- (evalExpr e2) 
+      (return (res2))
+    False -> do 
+      res3 <- (evalExpr e3)
+      (return (res3))
+evalExpr TauExpr = do
+  return (RealVal (realToFrac (2.0*pi)))
+evalExpr PiExpr = do
+  return (RealVal (realToFrac (pi)))
+evalExpr FogarteExpr = do
+  return (RealVal (fogarteHelper 6))
+evalExpr MRExpr = do
+  return (IntVal 0)
+evalExpr (NegExpr e) = do
+  res1 <- (evalExpr e)
+  return (negateV (res1))
+evalExpr (NumExpr v) = do
+  return v
+evalExpr (DoneExpr e) = do
+  res1 <- (evalExpr e)
+  return (res1)

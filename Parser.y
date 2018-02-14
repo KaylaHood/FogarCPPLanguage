@@ -64,11 +64,9 @@ import Lexer
 %nonassoc NEG ROUND
 %%
 
-P : S '?'                       { $1 }
-
 S :: { Stmt }
-S : E                           { Stmt $1 }
-  | E ms                        { MSStmt $1 }
+S : E '?'                       { Stmt $1 }
+  | E ms '?'                    { MSStmt $1 }
 
 E :: { Expr }
 E : '(' E ')'                   { $2 }
@@ -88,7 +86,6 @@ E : '(' E ')'                   { $2 }
   | E '%' E                     { ModExpr $1 $3 }
   | E '^' E                     { ExpExpr $1 $3 }
   | ifz E then E else E         { IfzThenElseExpr $2 $4 $6 }
-  | E ms                        { MSExpr $1 }
   | '-' E %prec NEG             { NegExpr $2 }
   | '~' E %prec ROUND           { RoundExpr $2 }
 
@@ -109,7 +106,6 @@ data Expr =
   TauExpr                         |
   PiExpr                          |
   FogarteExpr                     |
-  MSExpr Expr                     |
   MRExpr                          |
   NumExpr Value                   |
   NegExpr Expr                    |
@@ -118,11 +114,7 @@ data Expr =
 
 data Stmt = 
   Stmt Expr     |
-  MSStmt Expr   |
-  deriving (Show, Eq)
-
-data Pgrm =
-  Pgrm Stmt
+  MSStmt Expr   
   deriving (Show, Eq)
 
 parseError :: [Token] -> Maybe a
